@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Token expiration time in milliseconds (24 hours) - must match backend
 const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
