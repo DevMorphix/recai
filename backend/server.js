@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import recordingsRoutes from './routes/recordings.js';
@@ -38,7 +39,6 @@ app.use('/api/recordings', authenticateToken, recordingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  const mongoose = require('mongoose');
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
