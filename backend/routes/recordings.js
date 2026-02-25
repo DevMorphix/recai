@@ -203,13 +203,13 @@ router.patch('/:id', async (req, res) => {
 
     const recording = await Recording.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      { 
-        ...(title && { title }),
-        ...(transcript && { transcript }),
-        ...(summary && { summary }),
-        ...(minutes && { minutes }),
-        ...(status && { status }),
-        ...(tags && { tags })
+      {
+        ...(title !== undefined && { title }),
+        ...(transcript !== undefined && { transcript }),
+        ...(summary !== undefined && { summary }),
+        ...(minutes !== undefined && { minutes }),
+        ...(status !== undefined && { status }),
+        ...(tags !== undefined && { tags })
       },
       { new: true, runValidators: true }
     );

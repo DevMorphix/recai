@@ -32,6 +32,7 @@ Include ONLY if present in the transcript:
 - Key points and takeaways
 - Decisions made (only if actual decisions were made)
 - Important information mentioned
+- no "----" in between any lines, JUST USE SPACING
 
 Format the summary with clear sections using markdown.
 
@@ -95,6 +96,7 @@ IMPORTANT RULES:
 5. Only include action items if specific tasks were discussed
 6. Only include decisions if actual decisions were reached
 7. Only include next steps if they were explicitly mentioned
+8. Don't add any "----" in between any lines, JUST USE SPACING
 
 Create professional meeting minutes in markdown format. Start with:
 

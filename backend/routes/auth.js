@@ -46,7 +46,11 @@ router.post('/register', async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({ error: 'Email already registered' });
     }
-    res.status(500).json({ error: 'Registration failed', details: error.message });
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ error: messages.join(', ') });
+    }
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 
