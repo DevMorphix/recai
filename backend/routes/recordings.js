@@ -199,7 +199,7 @@ router.post('/', async (req, res) => {
 // Update recording
 router.patch('/:id', async (req, res) => {
   try {
-    const { title, transcript, summary, minutes, status, tags } = req.body;
+    const { title, transcript, summary, minutes, status, tags, actionItems } = req.body;
 
     const recording = await Recording.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
@@ -209,7 +209,8 @@ router.patch('/:id', async (req, res) => {
         ...(summary !== undefined && { summary }),
         ...(minutes !== undefined && { minutes }),
         ...(status !== undefined && { status }),
-        ...(tags !== undefined && { tags })
+        ...(tags !== undefined && { tags }),
+        ...(actionItems !== undefined && { actionItems })
       },
       { new: true, runValidators: true }
     );

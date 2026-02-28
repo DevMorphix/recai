@@ -1,7 +1,10 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = express.Router();
 
@@ -142,6 +145,47 @@ router.patch('/profile', async (req, res) => {
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Google Sign-In
+router.post('/google', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'ID token required' });
+
+    // Verify the token with Google
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    // Find or create the user
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        password: googleId + process.env.JWT_SECRET, // non-usable password for Google users
+      });
+    } else if (!user.googleId) {
+      // Link Google to existing email/password account
+      user.googleId = googleId;
+      await user.save();
+    }
+
+    const { token, expiresAt } = generateToken(user);
+    res.json({
+      token,
+      expiresAt,
+      user: { id: user._id, name: user.name, email: user.email },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(401).json({ error: 'Google authentication failed' });
   }
 });
 

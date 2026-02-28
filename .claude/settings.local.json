@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/mnt/d/products/rec-ai/mobile-app/rec-ai/postcss.config.cjs:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx cap sync android)",
+      "Bash(./gradlew assembleDebug:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}

@@ -75,7 +75,7 @@ export const generateMeetingMinutes = async (transcript, summary, title) => {
     day: 'numeric'
   });
 
-  const prompt = `You are an expert at creating professional meeting minutes. 
+  const prompt = `You are an expert at creating professional meeting minutes.
 Please analyze the following transcript and generate comprehensive meeting minutes.
 
 Meeting Title: ${title || 'Untitled Meeting'}
@@ -87,6 +87,11 @@ Transcript:
 """
 ${transcript}
 """
+
+LANGUAGE RULE (apply first):
+- Detect the language of the transcript.
+- If it is NOT in English, translate all spoken content to English before processing.
+- The final meeting minutes must always be written in English regardless of the transcript language.
 
 IMPORTANT RULES:
 1. ONLY include sections that have actual content from the transcript
