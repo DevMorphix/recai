@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#059669</color>
+    <color name="colorPrimaryDark">#04845c</color>
+    <color name="colorAccent">#10B981</color>
+    <!-- Launch background: matches the app's dark theme background so the
+         native window background is invisible before the WebView paints -->
+    <color name="launch_background">#0f172a</color>
+</resources>

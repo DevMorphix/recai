@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">rec-ai</string>
+    <string name="title_activity_main">rec-ai</string>
+    <string name="package_name">rec.ai</string>
+    <string name="custom_url_scheme">rec.ai</string>
+    <string name="server_client_id">1004219063159-bhlmuo4cebu9oqf32i6nn2grojmhphh5.apps.googleusercontent.com</string>
+</resources>
