@@ -21,7 +21,7 @@
           </div>
 
           <!-- Title -->
-          <h1 class="title">RecAI</h1>
+          <h1 class="title">Echobit</h1>
 
           <!-- Tagline -->
           <div class="tagline">

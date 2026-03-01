@@ -1,51 +1,56 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
+import { sendOTPEmail } from '../utils/email.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 const router = express.Router();
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 // Register
 router.post('/register', async (req, res) => {
   try {
-    console.log('Registration attempt:', { name: req.body.name, email: req.body.email });
-    
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if user exists
     const existingUser = await User.findOne({ email });
-    console.log('Existing user check completed:', !!existingUser);
-    
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Create user (password is hashed in pre-save hook)
-    console.log('Creating new user...');
-    const user = await User.create({ name, email, password });
-    console.log('User created successfully:', user._id);
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    const { token, expiresAt } = generateToken(user);
-    
+    const user = await User.create({
+      name,
+      email,
+      password,
+      verificationOTP: hashedOTP,
+      verificationOTPExpires: otpExpires,
+    });
+
+    try {
+      await sendOTPEmail(email, otp, 'verify');
+    } catch (emailErr) {
+      console.error('Failed to send verification email:', emailErr.message);
+    }
+
     res.status(201).json({
-      message: 'User created successfully',
-      token,
-      expiresAt,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email
-      }
+      message: 'Account created. Please verify your email.',
+      email: user.email,
     });
   } catch (error) {
-    console.error('Registration error:', error.message, error.stack);
+    console.error('Registration error:', error.message);
     if (error.code === 11000) {
       return res.status(400).json({ error: 'Email already registered' });
     }
@@ -66,29 +71,26 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Find user with password field
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    if (!user.isVerified) {
+      return res.status(403).json({ error: 'Email not verified', email: user.email });
+    }
+
     const { token, expiresAt } = generateToken(user);
-    
     res.json({
       message: 'Login successful',
       token,
       expiresAt,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email
-      }
+      user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -96,23 +98,141 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Send / Resend verification OTP
+router.post('/send-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'No account found with this email' });
+    if (user.isVerified) return res.status(400).json({ error: 'Email already verified' });
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    user.verificationOTP = hashedOTP;
+    user.verificationOTPExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await sendOTPEmail(email, otp, 'verify');
+    res.json({ message: 'Verification code sent' });
+  } catch (error) {
+    console.error('Send verification error:', error);
+    res.status(500).json({ error: 'Failed to send verification code' });
+  }
+});
+
+// Verify email with OTP
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ error: 'Email and code are required' });
+
+    const user = await User.findOne({ email }).select('+verificationOTP');
+    if (!user) return res.status(404).json({ error: 'No account found' });
+    if (user.isVerified) return res.status(400).json({ error: 'Email already verified' });
+
+    if (!user.verificationOTP || !user.verificationOTPExpires) {
+      return res.status(400).json({ error: 'No verification code found. Request a new one.' });
+    }
+    if (user.verificationOTPExpires < new Date()) {
+      return res.status(400).json({ error: 'Code expired. Request a new one.' });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.verificationOTP);
+    if (!isMatch) return res.status(400).json({ error: 'Invalid code' });
+
+    user.isVerified = true;
+    user.verificationOTP = null;
+    user.verificationOTPExpires = null;
+    await user.save();
+
+    const { token, expiresAt } = generateToken(user);
+    res.json({
+      message: 'Email verified successfully',
+      token,
+      expiresAt,
+      user: { id: user._id, name: user.name, email: user.email }
+    });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// Forgot password — send OTP
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const user = await User.findOne({ email });
+    if (!user || !user.isVerified) {
+      return res.json({ message: 'If that email exists, a reset code was sent' });
+    }
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    user.resetPasswordOTP = hashedOTP;
+    user.resetPasswordOTPExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await sendOTPEmail(email, otp, 'reset');
+    res.json({ message: 'If that email exists, a reset code was sent' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to send reset code' });
+  }
+});
+
+// Reset password with OTP
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: 'Email, code and new password are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const user = await User.findOne({ email }).select('+resetPasswordOTP +password');
+    if (!user) return res.status(404).json({ error: 'No account found' });
+
+    if (!user.resetPasswordOTP || !user.resetPasswordOTPExpires) {
+      return res.status(400).json({ error: 'No reset code found. Request a new one.' });
+    }
+    if (user.resetPasswordOTPExpires < new Date()) {
+      return res.status(400).json({ error: 'Code expired. Request a new one.' });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.resetPasswordOTP);
+    if (!isMatch) return res.status(400).json({ error: 'Invalid code' });
+
+    user.password = newPassword;
+    user.resetPasswordOTP = null;
+    user.resetPasswordOTPExpires = null;
+    await user.save();
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Password reset failed' });
+  }
+});
+
 // Get current user
 router.get('/me', async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
+    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ user });
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });
@@ -123,25 +243,17 @@ router.get('/me', async (req, res) => {
 router.patch('/profile', async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { name, avatar } = req.body;
-    
     const user = await User.findByIdAndUpdate(
       decoded.id,
       { name, avatar },
       { new: true, runValidators: true }
     );
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
+    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update profile' });
@@ -154,7 +266,6 @@ router.post('/google', async (req, res) => {
     const { idToken } = req.body;
     if (!idToken) return res.status(400).json({ error: 'ID token required' });
 
-    // Verify the token with Google
     const ticket = await googleClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -162,18 +273,18 @@ router.post('/google', async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, sub: googleId } = payload;
 
-    // Find or create the user
     let user = await User.findOne({ email });
     if (!user) {
       user = await User.create({
         name,
         email,
         googleId,
-        password: googleId + process.env.JWT_SECRET, // non-usable password for Google users
+        password: googleId + process.env.JWT_SECRET,
+        isVerified: true,
       });
-    } else if (!user.googleId) {
-      // Link Google to existing email/password account
-      user.googleId = googleId;
+    } else {
+      if (!user.googleId) user.googleId = googleId;
+      if (!user.isVerified) user.isVerified = true;
       await user.save();
     }
 

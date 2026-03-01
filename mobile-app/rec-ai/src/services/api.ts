@@ -59,7 +59,9 @@ class ApiService {
       (response) => response,
       (error) => {
         const message = error.response?.data?.error || error.response?.data?.message || error.message || 'An error occurred';
-        return Promise.reject(new Error(message));
+        const err = new Error(message) as any;
+        err.responseData = error.response?.data;
+        return Promise.reject(err);
       }
     );
   }
@@ -69,9 +71,26 @@ class ApiService {
   }
 
   // Auth
-  async register(name: string, email: string, password: string): Promise<AuthResponse> {
-    const { data } = await this.api.post<AuthResponse>('/auth/register', { name, email, password });
+  async register(name: string, email: string, password: string): Promise<{ message: string; email: string }> {
+    const { data } = await this.api.post<{ message: string; email: string }>('/auth/register', { name, email, password });
     return data;
+  }
+
+  async sendVerification(email: string): Promise<void> {
+    await this.api.post('/auth/send-verification', { email });
+  }
+
+  async verifyEmail(email: string, otp: string): Promise<AuthResponse> {
+    const { data } = await this.api.post<AuthResponse>('/auth/verify-email', { email, otp });
+    return data;
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    await this.api.post('/auth/forgot-password', { email });
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
+    await this.api.post('/auth/reset-password', { email, otp, newPassword });
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {

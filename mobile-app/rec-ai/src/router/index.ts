@@ -24,6 +24,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { guest: true }
   },
   {
+    path: '/verify-email',
+    name: 'VerifyEmail',
+    component: () => import('@/views/VerifyEmailPage.vue'),
+    meta: { guest: true }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPasswordPage.vue'),
+    meta: { guest: true }
+  },
+  {
     path: '/home',
     name: 'Home',
     component: () => import('@/views/HomePage.vue'),

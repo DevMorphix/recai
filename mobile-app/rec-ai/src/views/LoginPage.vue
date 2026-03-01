@@ -18,7 +18,7 @@
               </div>
               <div class="logo-glow"></div>
             </div>
-            <h1>RecAI</h1>
+            <h1>Echobit</h1>
             <p class="tagline">Record. Transcribe. Understand.</p>
           </div>
 
@@ -86,6 +86,10 @@
                 <span>{{ error }}</span>
               </div>
 
+              <div class="forgot-row">
+                <router-link to="/forgot-password" class="forgot-link">Forgot password?</router-link>
+              </div>
+
               <button type="submit" class="submit-btn" :disabled="loading || googleLoading">
                 <ion-spinner v-if="loading" name="crescent"></ion-spinner>
                 <template v-else>
@@ -142,6 +146,11 @@ async function handleLogin() {
   if (success) {
     router.replace('/home');
   } else {
+    // If email not verified, redirect to verify page
+    if (auth.error === 'Email not verified') {
+      router.replace({ path: '/verify-email', query: { email: email.value } });
+      return;
+    }
     error.value = auth.error || 'Login failed';
   }
 
@@ -157,7 +166,13 @@ async function handleGoogleLogin() {
   error.value = '';
   try {
     const googleUser = await GoogleAuth.signIn();
-    const idToken = googleUser.authentication.idToken;
+    const idToken = googleUser?.authentication?.idToken;
+
+    if (!idToken) {
+      error.value = `No token: ${JSON.stringify(googleUser?.authentication)}`;
+      return;
+    }
+
     const success = await auth.googleLogin(idToken);
     if (success) {
       router.replace('/home');
@@ -169,7 +184,7 @@ async function handleGoogleLogin() {
     if (err?.error === 'popup_closed_by_user' || err?.error === 'access_denied') {
       // user cancelled, do nothing
     } else {
-      error.value = err?.message || err?.error || 'Google sign-in failed';
+      error.value = `Error: ${err?.message || err?.error || JSON.stringify(err)}`;
     }
   } finally {
     googleLoading.value = false;
@@ -490,6 +505,19 @@ async function handleGoogleLogin() {
 
 .submit-btn ion-icon { font-size: 18px; }
 .submit-btn ion-spinner { width: 20px; height: 20px; }
+
+/* Forgot password */
+.forgot-row {
+  text-align: right;
+  margin-bottom: 12px;
+  margin-top: -4px;
+}
+.forgot-link {
+  font-size: 13px;
+  color: var(--app-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
 
 /* Register Link */
 .register-link {

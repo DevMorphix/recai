@@ -32,13 +32,69 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       const response = await api.register(name, email, password);
+      return { success: true, email: response.email };
+    } catch (err: any) {
+      error.value = err.message || 'Registration failed';
+      return { success: false, email: '' };
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function sendVerification(email: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      await api.sendVerification(email);
+      return true;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to send code';
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function verifyEmail(email: string, otp: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await api.verifyEmail(email, otp);
       token.value = response.token;
       user.value = response.user;
       api.setToken(response.token);
       await Preferences.set({ key: TOKEN_KEY, value: response.token });
       return true;
     } catch (err: any) {
-      error.value = err.message || 'Registration failed';
+      error.value = err.message || 'Verification failed';
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function forgotPassword(email: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      await api.forgotPassword(email);
+      return true;
+    } catch (err: any) {
+      error.value = err.message || 'Failed to send reset code';
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function resetPassword(email: string, otp: string, newPassword: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      await api.resetPassword(email, otp, newPassword);
+      return true;
+    } catch (err: any) {
+      error.value = err.message || 'Password reset failed';
       return false;
     } finally {
       loading.value = false;
@@ -121,6 +177,10 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     googleLogin,
+    sendVerification,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
     logout,
     fetchUser,
     updateProfile,

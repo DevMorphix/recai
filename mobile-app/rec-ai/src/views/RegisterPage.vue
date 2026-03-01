@@ -17,7 +17,7 @@
           <!-- Header -->
           <div class="header-section">
             <h1>Create Account</h1>
-            <p>Join RecAI and unlock the power of voice</p>
+            <p>Join Echobit and unlock the power of voice</p>
           </div>
 
           <!-- Form Card -->
@@ -246,10 +246,10 @@ async function handleRegister() {
   loading.value = true;
   error.value = '';
 
-  const success = await auth.register(name.value, email.value, password.value);
+  const result = await auth.register(name.value, email.value, password.value);
 
-  if (success) {
-    router.replace('/home');
+  if (result.success) {
+    router.replace({ path: '/verify-email', query: { email: result.email } });
   } else {
     error.value = auth.error || 'Registration failed';
   }

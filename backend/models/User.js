@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters'],
-    select: false // Don't include password in queries by default
+    select: false
   },
   googleId: {
     type: String,
@@ -33,7 +33,15 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationOTP: { type: String, default: null, select: false },
+  verificationOTPExpires: { type: Date, default: null },
+  resetPasswordOTP: { type: String, default: null, select: false },
+  resetPasswordOTPExpires: { type: Date, default: null }
 }, {
   timestamps: true
 });
@@ -49,10 +57,12 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Remove password from JSON output
+// Remove sensitive fields from JSON output
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;
+  delete user.verificationOTP;
+  delete user.resetPasswordOTP;
   return user;
 };
 
