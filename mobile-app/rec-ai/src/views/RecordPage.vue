@@ -509,11 +509,12 @@ async function saveRecording() {
     let recording;
 
     if (Capacitor.isNativePlatform()) {
-      // On native (Android/iOS), CapacitorHttp intercepts XHR but cannot serialize
-      // binary Blob bodies — it sends 2 bytes of empty JSON instead of audio data.
-      // Send base64 through the backend which then uploads to R2 server-side.
+      // Android/iOS: R2 presigned PUT is blocked by Android WebView/carrier proxies.
+      // Send base64 through backend which uploads to R2 server-side.
       processingStatus.value = 'Processing audio...';
       const base64 = await blobToBase64(audioBlob.value);
+      const sizeMB = ((base64.length * 0.75) / 1024 / 1024).toFixed(1);
+      console.log(`[Upload] Native — base64 ~${sizeMB} MB → backend`);
       recording = await recordingsStore.createRecording({
         audioData: base64,
         duration,
@@ -521,35 +522,21 @@ async function saveRecording() {
         autoTranscribe: false,
       });
     } else {
-      // Web: upload blob directly to R2 via presigned URL (standard XHR, no CapacitorHttp)
-      try {
-        uploadProgress.value = 0;
-        processingStatus.value = 'Uploading audio... 0%';
-        const { uploadUrl, key } = await api.getUploadUrl(mimeType);
-        await api.uploadToR2(uploadUrl, audioBlob.value, mimeType, (pct) => {
-          uploadProgress.value = pct;
-          processingStatus.value = `Uploading audio... ${pct}%`;
-        });
-
-        processingStatus.value = 'Saving...';
-        recording = await recordingsStore.createRecording({
-          audioKey: key,
-          duration,
-          mimeType,
-          autoTranscribe: false,
-        });
-      } catch (uploadErr: any) {
-        // Web fallback: send base64 through backend
-        console.warn('R2 upload failed, using base64 fallback:', uploadErr?.message);
-        processingStatus.value = 'Processing audio...';
-        const base64 = await blobToBase64(audioBlob.value);
-        recording = await recordingsStore.createRecording({
-          audioData: base64,
-          duration,
-          mimeType,
-          autoTranscribe: true,
-        });
-      }
+      // Web: direct R2 presigned URL upload
+      uploadProgress.value = 0;
+      processingStatus.value = 'Uploading audio... 0%';
+      const { uploadUrl, key } = await api.getUploadUrl(mimeType);
+      await api.uploadToR2(uploadUrl, audioBlob.value, mimeType, (pct) => {
+        uploadProgress.value = pct;
+        processingStatus.value = `Uploading audio... ${pct}%`;
+      });
+      processingStatus.value = 'Saving...';
+      recording = await recordingsStore.createRecording({
+        audioKey: key,
+        duration,
+        mimeType,
+        autoTranscribe: false,
+      });
     }
 
     if (recording) {
