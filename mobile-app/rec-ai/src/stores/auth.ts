@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     } catch (err) {
       console.error('Failed to initialize auth:', err);
-      await logout();
+      // Don't logout on storage read errors — keep the user logged in
     }
   }
 
@@ -123,8 +123,16 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return;
     try {
       user.value = await api.getMe();
-    } catch (err) {
-      await logout();
+      // Sliding session: issue a fresh 7-day token on every app open
+      const refreshed = await api.refreshToken();
+      token.value = refreshed.token;
+      api.setToken(refreshed.token);
+      await Preferences.set({ key: TOKEN_KEY, value: refreshed.token });
+    } catch (err: any) {
+      // Only logout on 401 Unauthorized — not on network errors or timeouts
+      if (err.status === 401) {
+        await logout();
+      }
     }
   }
 

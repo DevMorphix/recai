@@ -17,8 +17,8 @@ export const authenticateToken = (req, res, next) => {
   });
 };
 
-// Token expiration time in seconds (24 hours)
-export const TOKEN_EXPIRY_SECONDS = 24 * 60 * 60;
+// Token expiration time in seconds (7 days — sliding session)
+export const TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60;
 
 export const generateToken = (user) => {
   const token = jwt.sign(

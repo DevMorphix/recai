@@ -198,6 +198,20 @@ const waveformBars = ref<number[]>(Array(40).fill(12));
 const animationFrame = ref<number | null>(null);
 const timerInterval = ref<number | null>(null);
 
+// Wake lock — keeps screen on during recording so MediaRecorder isn't paused
+let wakeLock: WakeLockSentinel | null = null;
+async function acquireWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await (navigator as any).wakeLock.request('screen');
+    }
+  } catch { /* not supported or denied — recording still works, may pause on screen off */ }
+}
+function releaseWakeLock() {
+  wakeLock?.release().catch(() => {});
+  wakeLock = null;
+}
+
 const MAX_RECORDING_TIME = 600; // 10 minutes
 
 const headerTitle = computed(() => {
@@ -324,6 +338,7 @@ async function startRecording(retryCount = 0) {
 
     isRecording.value = true;
     startTimer();
+    acquireWakeLock();
 
     voiceRecorderListener.value = await CapacitorVoiceRecorder.addListener(
       'frequencyData',
@@ -412,6 +427,7 @@ async function startRecording(retryCount = 0) {
 }
 
 async function stopRecording() {
+  releaseWakeLock();
   if (Capacitor.isNativePlatform() && isRecording.value) {
     stopTimer();
     stopVisualization();

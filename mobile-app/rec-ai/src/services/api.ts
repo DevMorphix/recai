@@ -61,6 +61,7 @@ class ApiService {
         const message = error.response?.data?.error || error.response?.data?.message || error.message || 'An error occurred';
         const err = new Error(message) as any;
         err.responseData = error.response?.data;
+        err.status = error.response?.status;
         return Promise.reject(err);
       }
     );
@@ -106,6 +107,11 @@ class ApiService {
   async getMe(): Promise<User> {
     const { data } = await this.api.get<{ user: User }>('/auth/me');
     return data.user;
+  }
+
+  async refreshToken(): Promise<{ token: string; expiresAt: number }> {
+    const { data } = await this.api.post<{ token: string; expiresAt: number }>('/auth/refresh');
+    return data;
   }
 
   async updateProfile(updates: Partial<User>): Promise<User> {

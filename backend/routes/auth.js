@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
-import { generateToken } from '../middleware/auth.js';
+import { generateToken, authenticateToken } from '../middleware/auth.js';
 import { sendOTPEmail } from '../utils/email.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -297,6 +297,18 @@ router.post('/google', async (req, res) => {
   } catch (error) {
     console.error('Google auth error:', error);
     res.status(401).json({ error: error.message || 'Google authentication failed' });
+  }
+});
+
+// Refresh token — issues a fresh 7-day token (sliding session)
+router.post('/refresh', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    const { token, expiresAt } = generateToken(user);
+    res.json({ token, expiresAt });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to refresh token' });
   }
 });
 

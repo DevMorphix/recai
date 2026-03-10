@@ -54,23 +54,24 @@ const auth = useAuthStore();
 const leaving = ref(false);
 
 onMounted(async () => {
-  // Initialize auth while animation plays
   const authReady = auth.initialize();
 
-  // Wait for both the animation duration and auth to complete
-  const [_] = await Promise.all([
+  // If user is already logged in (resuming from background), skip the long animation
+  const { Preferences } = await import('@capacitor/preferences');
+  const stored = await Preferences.get({ key: 'auth_token' });
+  const alreadyLoggedIn = !!stored.value;
+
+  await Promise.all([
     authReady,
-    new Promise(resolve => setTimeout(resolve, 2500))
+    new Promise(resolve => setTimeout(resolve, alreadyLoggedIn ? 400 : 2500))
   ]);
 
-  // Fade out
   leaving.value = true;
 
-  // Navigate after fade-out animation
   setTimeout(() => {
     const target = auth.isAuthenticated ? '/home' : '/login';
     router.replace(target);
-  }, 500);
+  }, 300);
 });
 </script>
 
