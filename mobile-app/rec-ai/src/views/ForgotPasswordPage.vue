@@ -294,7 +294,7 @@ async function handleReset() {
   z-index: 1;
   max-width: 400px;
   margin: 0 auto;
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 24px 40px;
+  padding: var(--page-top) 24px 40px;
 }
 
 .back-btn {

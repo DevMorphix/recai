@@ -29,8 +29,8 @@
               <div class="hero-icon">
                 <ion-icon :icon="mic"></ion-icon>
               </div>
-              <!-- <div class="hero-pulse"></div> -->
-              <!-- <div class="hero-pulse hero-pulse-2"></div> -->
+              <div class="hero-pulse"></div>
+              <div class="hero-pulse hero-pulse-2"></div>
             </div>
             <div class="hero-text">
               <h2>New Recording</h2>
@@ -155,7 +155,7 @@
 
           <div class="pp-body">
             <p class="pp-intro">
-              Echobit collects your audio recordings and transcriptions to deliver its core features.
+              Echobits collects your audio recordings and transcriptions to deliver its core features.
               Your data is stored securely and never sold to third parties.
             </p>
 
@@ -179,7 +179,7 @@
             </ul>
 
             <p class="pp-contact">
-              Questions? <a href="mailto:no.reply.echobit@gmail.com">no.reply.echobit@gmail.com</a>
+              Questions? <a href="mailto:no.reply.Echobits@gmail.com">no.reply.Echobits@gmail.com</a>
             </p>
           </div>
 
@@ -502,7 +502,8 @@ function getStatusLabel(status: string) {
 
 <style scoped>
 .home-page {
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 100px;
+  /* padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 100px; */
+  padding: var(--page-top) 20px 100px;
 }
 
 /* Header */
@@ -1016,6 +1017,7 @@ function getStatusLabel(status: string) {
   align-items: center;
   justify-content: space-around;
   padding: 8px 12px;
+  /* padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px)); */
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   background: var(--app-surface);
   border-top: 1px solid var(--app-border);

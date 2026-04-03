@@ -17,7 +17,7 @@
           <!-- Header -->
           <div class="header-section">
             <h1>Create Account</h1>
-            <p>Join Echobit and unlock the power of voice</p>
+            <p>Join Echobits and unlock the power of voice</p>
           </div>
 
           <!-- Form Card -->
@@ -310,7 +310,7 @@ async function handleRegister() {
   z-index: 1;
   max-width: 400px;
   margin: 0 auto;
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 24px 40px;
+  padding: var(--page-top) 24px 40px;
 }
 
 /* Back Button */

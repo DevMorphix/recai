@@ -25,7 +25,7 @@ import androidx.core.app.NotificationCompat;
  */
 public class RecordingService extends Service {
 
-    public static final String CHANNEL_ID = "echobit_recording";
+    public static final String CHANNEL_ID = "Echobits_recording";
     public static final String ACTION_START = "rec.ai.ACTION_START_RECORDING";
     public static final String ACTION_STOP  = "rec.ai.ACTION_STOP_RECORDING";
 
@@ -51,7 +51,7 @@ public class RecordingService extends Service {
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             wakeLock = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK,
-                    "Echobit::RecordingWakeLock");
+                    "Echobits::RecordingWakeLock");
             wakeLock.acquire(/* 3 hours max */ 3 * 60 * 60 * 1000L);
         }
 
@@ -64,7 +64,7 @@ public class RecordingService extends Service {
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording in progress")
-                .setContentText("Echobit is recording — tap to return")
+                .setContentText("Echobits is recording — tap to return")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setColor(0xFF059669)           // app green
                 .setColorized(true)

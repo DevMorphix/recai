@@ -13,6 +13,7 @@ if (typeof globalThis.File === 'undefined') {
 }
 
 // Set ffmpeg path
+ffmpeg.setFfprobePath(ffprobeInstaller.path);
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 // Whisper API limit is 25MB, we'll use 20MB to be safe

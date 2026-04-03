@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'rec.ai',
-  appName: 'Echobit',
+  appName: 'Echobits',
   webDir: 'www',
   server: {
     allowNavigation: ['*'],

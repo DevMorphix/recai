@@ -18,7 +18,7 @@
               </div>
               <div class="logo-glow"></div>
             </div>
-            <h1>Echobit</h1>
+            <h1>Echobits</h1>
             <p class="tagline">Record. Transcribe. Understand.</p>
           </div>
 
@@ -26,7 +26,7 @@
           <div class="form-card">
 
             <!-- PRIMARY: Google Sign-In -->
-            <!-- <button class="google-btn-primary" @click="handleGoogleLogin" :disabled="googleLoading || loading">
+            <button class="google-btn-primary" @click="handleGoogleLogin" :disabled="googleLoading || loading">
               <ion-spinner v-if="googleLoading" name="crescent"></ion-spinner>
               <template v-else>
                 <svg class="google-icon" viewBox="0 0 24 24">
@@ -37,14 +37,14 @@
                 </svg>
                 <span>Continue with Google</span>
               </template>
-            </button> -->
+            </button>
 
             <!-- Divider -->
-            <!-- <div class="divider">
+            <div class="divider">
               <span class="divider-line"></span>
               <span class="divider-text">or use email</span>
               <span class="divider-line"></span>
-            </div> -->
+            </div>
 
             <!-- SECONDARY: Email/Password -->
             <form @submit.prevent="handleLogin">
@@ -93,8 +93,7 @@
               <button type="submit" class="submit-btn" :disabled="loading || googleLoading">
                 <ion-spinner v-if="loading" name="crescent"></ion-spinner>
                 <template v-else>
-                  <span>Sign In with Email</span>
-                  <ion-icon :icon="arrowForwardOutline"></ion-icon>
+                  <span>Sign In</span>
                 </template>
               </button>
             </form>
@@ -103,7 +102,7 @@
           <!-- Footer -->
           <p class="register-link">
             Don't have an account?
-            <router-link to="/register">Create one</router-link>
+            <router-link to="/register">Sign up</router-link>
           </p>
         </div>
       </div>

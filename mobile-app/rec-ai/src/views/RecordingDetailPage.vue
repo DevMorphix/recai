@@ -937,7 +937,7 @@ function applyInlineFormatting(text: string): string {
 
 <style scoped>
 .detail-page {
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 40px;
+  padding: var(--page-top) 20px 40px;
 }
 
 /* Header */

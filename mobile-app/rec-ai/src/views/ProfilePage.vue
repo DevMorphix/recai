@@ -134,7 +134,7 @@
         </button>
 
         <!-- Version -->
-        <p class="version-text">Echobit v0.1.0</p>
+        <p class="version-text">Echobits v0.1.0</p>
       </div>
 
       <!-- Edit Profile Modal -->
@@ -233,10 +233,10 @@
               <div class="about-logo">
                 <img src="/logo.png" alt="App Logo" style="width: 58px; height: 58px; object-fit: contain;" />
               </div>
-              <h3>Echobit</h3>
+              <h3>Echobits</h3>
               <p class="about-version">Version 0.1.0</p>
               <p class="about-desc">Your intelligent voice recorder with AI-powered transcription, summaries, and meeting minutes.</p>
-              <p class="about-copy">&copy; 2024 Echobit. All rights reserved.</p>
+              <p class="about-copy">&copy; 2024 Echobits. All rights reserved.</p>
             </div>
           </div>
         </ion-content>
@@ -357,13 +357,13 @@ async function saveProfile() {
 }
 
 function openHelp() {
-  window.open('mailto:no.reply.echobit@gmail.com', '_blank');
+  window.open('mailto:no.reply.Echobits@gmail.com', '_blank');
 }
 </script>
 
 <style scoped>
 .profile-page {
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 40px;
+  padding: var(--page-top) 20px 40px;
 }
 
 /* Header */

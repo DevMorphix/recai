@@ -259,7 +259,7 @@ function getStatusLabel(status: string) {
 
 <style scoped>
 .recordings-page {
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 100px;
+  padding: var(--page-top) 20px 100px;
 }
 
 /* Header */

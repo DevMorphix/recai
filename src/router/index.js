@@ -11,6 +11,7 @@ import RecordingDetail from '../views/RecordingDetail.vue'
 import DeleteAccount from '../views/DeleteAccount.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 import AdminPanel from '../views/AdminPanel.vue'
+import ContactUs from '../views/ContactUs.vue'
 
 const routes = [
   {
@@ -22,6 +23,12 @@ const routes = [
     path: '/delete-account',
     name: 'DeleteAccount',
     component: DeleteAccount,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/contact',
+    name: 'ContactUs',
+    component: ContactUs,
   },
   {
     path: '/privacy-policy',

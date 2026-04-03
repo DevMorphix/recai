@@ -3,12 +3,8 @@
     <!-- Mobile Header -->
     <header class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-30 px-4 flex items-center justify-between">
       <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-          </svg>
-        </div>
-        <span class="text-lg font-bold text-gray-800">RecAI</span>
+        <img src="/favicon.png" alt="Echobit" class="w-8 h-8 rounded-lg object-contain" />
+        <span class="text-lg font-bold text-gray-800">Echobit</span>
       </div>
       <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 rounded-lg hover:bg-gray-100">
         <svg v-if="!mobileMenuOpen" class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,12 +99,8 @@
     <aside class="hidden lg:block fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 z-20">
       <div class="p-6">
         <router-link to="/dashboard" class="flex items-center space-x-2">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-          </div>
-          <span class="text-xl font-bold text-gray-800">RecAI</span>
+          <img src="/favicon.png" alt="Echobit" class="w-10 h-10 rounded-xl object-contain" />
+          <span class="text-xl font-bold text-gray-800">Echobit</span>
         </router-link>
       </div>
 

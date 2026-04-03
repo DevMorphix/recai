@@ -95,6 +95,7 @@
   --app-primary-ultra-light: rgba(5, 150, 105, 0.08);
   --app-gradient: linear-gradient(135deg, #059669 0%, #10B981 50%, #34d399 100%);
   --app-gradient-subtle: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(16, 185, 129, 0.10) 100%);
+  --page-top: calc(20px + env(safe-area-inset-top, 0px));
 
   /* Radius */
   --radius-xs: 6px;
@@ -294,4 +295,10 @@ body.light {
   --app-gradient-subtle: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(16, 185, 129, 0.10) 100%);
   --shadow-primary: 0 8px 24px -4px rgba(5, 150, 105, 0.28);
   --shadow-primary-lg: 0 12px 32px -4px rgba(5, 150, 105, 0.32);
+}
+
+/* ─── Global safe-area margins for all pages ─── */
+ion-content {
+  --padding-top: env(safe-area-inset-top, 0px);
+  --padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }

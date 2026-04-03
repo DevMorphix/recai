@@ -4,12 +4,8 @@
       <!-- Logo -->
       <div class="text-center mb-6 sm:mb-8">
         <router-link to="/" class="inline-flex items-center space-x-2">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-          </div>
-          <span class="text-2xl sm:text-3xl font-bold text-white">RecAI</span>
+          <img src="/favicon.png" alt="Echobit" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-contain" />
+          <span class="text-2xl sm:text-3xl font-bold text-white">Echobit</span>
         </router-link>
       </div>
 
